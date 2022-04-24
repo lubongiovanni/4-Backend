@@ -27,6 +27,9 @@ class ProductosApi {
     }
 
     listarAll() {
+        if (this.productos.length<1){
+            return false;
+        }
         return this.productos;
     }
 
@@ -44,12 +47,12 @@ class ProductosApi {
             prodReemp.price = prod.price,
             prodReemp.thumbnail = prod.thumbnail
         }
-        return this.productos;
+        return prodReemp;
     }
 
     borrar(id) {
         let result
-        if (this.productos !== []) {
+        if (this.productos.length >= 1) {
             let newproducto = this.productos.filter(x => x.id !== id)
             this.productos = newproducto
             this.write() //Sobreescribo el archivo
@@ -61,4 +64,4 @@ class ProductosApi {
     }
 }
 
-module.exports = ProductosApi
+module.exports = ProductosApi;

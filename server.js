@@ -17,19 +17,19 @@ const productosRouter = new Router();
 //PUT '/api/productos/:id' -> recibe y actualiza un producto según su id.
 //DELETE '/api/productos/:id' -> elimina un producto según su id.
 
-productosRouter.use(express.json());
-productosRouter.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 //EJ 1: GET TODOS LOS PRODUCTOS
-productosRouter.get('/api/productos', (req, res) => {
-    res.send(productosApi.listarAll());
+productosRouter.get('/', (req, res) => {
+    res.json(productosApi.listarAll());
 });
 
 //EJ 2: GET PRODUCTO SEGÚN ID
-productosRouter.get('/api/productos/:id', (req, res) => {
+productosRouter.get('/:id', (req, res) => {
     const id = req.params.id; //Se accede al valor del id usando "params"
     if (isNaN(id)) {
-        return res.status(400).send("El parámetro no es un número") // Error 400 que es del cliente
+        return res.status(400).send({Error: "El parámetro no es un número"}) // Error 400 que es del cliente
     } else {
         res.json(productosApi.listar(id));
     }
@@ -37,22 +37,21 @@ productosRouter.get('/api/productos/:id', (req, res) => {
 });
 
 //EJ 3: POST Recibe y agrega un producto -> Devuelve con su id asignado
-productosRouter.post('/api/productos', (req, res) => {
-    const newProduct = ({title, price, thumbnail}.req.body); //Chequearrrr
-    if (title && price && thumbnail){
-        guardar(newProduct);
-        return res.send(productosApi.listar(id)); //Devuelve el producto con su id asignado
-    } else {
-        res.send('Inválido');
+productosRouter.post('/', (req, res) => {
+    const newProduct = req.body; //Del html
+    const producto = productosApi.guardar(newProduct);
+    if (producto) {
+        res.json(producto);
     }
+    res.status(400).json({error: 'Producto no agregado'})
 });
 
 //EJ 4: PUT Recibe y actualiza un producto según su id
-productosRouter.put('/api/productos/:id', (req, res) => {
+productosRouter.put('/:id', (req, res) => {
     const id = req.params.id;
-    const prod = ({title, price, thumbnail}.req.body);
-    if (title && price && thumbnail){
-        productosApi.actualizar(prod, id);
+    const actualizarProd = req.body;
+    if (actualizarProd){
+        res.json(productosApi.actualizar(actualizarProd, id));
     } else {
         res.status(500).json('Inválido');
     }
@@ -60,13 +59,13 @@ productosRouter.put('/api/productos/:id', (req, res) => {
 
 //EJ 5: DELETE Recibe id y elimina el producto
 //Se hace correr todo el arreglo de los productos con el "producto"
-productosRouter.put('/api/productos/:id', (req, res) => {
+productosRouter.delete('/:id', (req, res) => {
     const id = req.params.id;
-    productosApi.borrar(id);
+    res.json(productosApi.borrar(id));
 });
 
 // Servidor y puerto
-app.use('/api/productos', productosRouter);
+app.use('/api/productos', productosRouter); //Ya no hace falta ponerles el /api/productos al comienzo
 
 const PORT = 3000;
 const server = app.listen(PORT, () => {
